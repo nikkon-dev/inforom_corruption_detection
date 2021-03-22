@@ -1,0 +1,27 @@
+name: Build inforom corruption detector
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container: 
+      image: nvidia/cuda:11.2.2-devel-ubuntu20.04
+      volumes:
+        - ${{ github.workspace }}:/opt
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Build
+        run: gcc -I/usr/local/cuda/include -O2 ${{ github.workspace }}/main.c -lnvidia-ml -o ${{ github.workspace }}/inforom_corruption_test
+      - name: Publish Release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          draft: true
+          prerelease: true
+
+
